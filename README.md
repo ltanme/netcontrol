@@ -5,7 +5,7 @@
 本项目是一个基于 Go 语言编写的 Web 服务，提供一个简单的 Web 控制页面，用于控制和管理特定服务的启用和禁用状态。后端通过执行预定义的 Shell 脚本来与这些服务交互。前端使用 jQuery 和 Bootstrap 构建，通过 AJAX 调用后端 API。
 
 主要功能包括：
-- 网站限制 (通过执行 `weblimit_1.sh`, `weblimit_103.sh`)
+- 网站限制 (通过执行内网 `weblimit_1.sh`, 外网`weblimit_103.sh`)
 - NAS 限制 (通过执行 `naslimit.sh`)
 - 网络限制 (通过执行 `netlimit.sh`)
 - 翻墙限制 (通过执行 `clashlimit.sh`)
