@@ -23,23 +23,17 @@ PROG="/root/start_controlpanel_improved.sh"
 
 start_service() {
     procd_open_instance
-    procd_set_param command ${PROG} monitor
-    procd_set_param respawn ${respawn_threshold:-3600} ${respawn_timeout:-5} ${respawn_retry:-5}
+    procd_set_param command /root/controlpanel_openwrt_arm64
+    procd_set_param respawn 3600 5 0
     procd_set_param stdout 1
     procd_set_param stderr 1
+    procd_set_param pidfile /var/run/controlpanel.pid
     procd_close_instance
 }
 
 stop_service() {
-    ${PROG} stop
-}
-
-restart() {
-    ${PROG} restart
-}
-
-status() {
-    ${PROG} status
+    # procd 会自动处理停止
+    :
 }
 EOF
 
