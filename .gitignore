@@ -1,0 +1,68 @@
+# 编译产物
+controlpanel_openwrt_arm64
+controlpanel_test
+controlpanel
+*.exe
+*.out
+
+# 日志文件
+*.log
+*.log.old
+
+# 操作系统文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE 和编辑器
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Go 相关
+*.test
+*.prof
+vendor/
+go.work
+go.work.sum
+
+# 临时文件
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# 环境配置（包含敏感信息）
+config.json
+scripts/scripts.conf
+
+# PID 文件
+*.pid
+
+# 压缩文件
+*.zip
+*.tar.gz
+*.tar
+*.rar
+
+# 部署相关
+deploy/
+dist/
+build/
+
+# 测试覆盖率
+coverage.txt
+coverage.html
+*.coverprofile

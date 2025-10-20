@@ -1,0 +1,19 @@
+{
+  "username": "admin",
+  "password": "your_password_here",
+  "serverPort": "20000",
+  "logFilePath": "/tmp/controlpanel_openwrt_arm64.log",
+  "nasLimitScript": "./scripts/naslimit.sh",
+  "networkLimitScript": "./scripts/netlimit.sh",
+  "clashLimitScript": "./scripts/clashlimit.sh",
+  "websiteLimitScripts": [
+    {
+      "id": "weblimit_1",
+      "scriptPath": "./scripts/weblimit_1.sh"
+    },
+    {
+      "id": "weblimit_103",
+      "scriptPath": "./scripts/weblimit_103.sh"
+    }
+  ]
+}

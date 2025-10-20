@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>System Control Panel</title>
+  <link rel="stylesheet" href="bootstrap.min.css" />
+  <style>
+    body { padding-top: 20px; }
+    .container { max-width: 800px; }
+    .output {
+      margin-top: 15px; padding: 10px; background-color: #f8f9fa;
+      border: 1px solid #dee2e6; border-radius: .25rem;
+      white-space: pre-wrap; word-wrap: break-word;
+      max-height: 300px; overflow-y: auto;
+    }
+    .card { margin-bottom: 20px; }
+    .card-body .text-muted { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="mb-0">System Control Panel</h1>
+      <button class="btn btn-outline-danger" onclick="logout()">退出登录</button>
+    </div>
+
+    <!-- Website Limit -->
+    <div class="card">
+      <div class="card-header">游戏网站限制 (Web/AdGuardHome Rules)</div>
+      <div class="card-body">
+        <button class="btn btn-success action-btn" data-api="website_limit" data-action="enable">启用-可以玩</button>
+        <button class="btn btn-danger action-btn" data-api="website_limit" data-action="disable">禁用-不能玩</button>
+        <p class="text-muted small mt-2">描述：禁用后不能玩一些游戏网站；启用会应用更严格的规则，禁用则放宽。</p>
+        <div class="output" id="output_website_limit">Click a button to see results...</div>
+      </div>
+    </div>
+
+    <!-- NAS Limit -->
+    <div class="card">
+      <div class="card-header">NAS 限制</div>
+      <div class="card-body">
+        <button class="btn btn-success action-btn" data-api="nas_limit" data-action="enable">启用-能看</button>
+        <button class="btn btn-danger action-btn" data-api="nas_limit" data-action="disable">禁用-不能看</button>
+        <p class="text-muted small mt-2">描述：禁用后不能看下载的电影电视；启用=能看下载的电视，禁用=不能看下载的电视。</p>
+        <div class="output" id="output_nas_limit">Click a button to see results...</div>
+      </div>
+    </div>
+
+    <!-- Network Limit -->
+    <div class="card">
+      <div class="card-header">网络限制 (MAC Filter / iptables)</div>
+      <div class="card-body">
+        <button class="btn btn-success action-btn" data-api="network_limit" data-action="enable">启用-能上网</button>
+        <button class="btn btn-danger action-btn" data-api="network_limit" data-action="disable">禁用-不能上网</button>
+        <p class="text-muted small mt-2">描述：禁用后设备所有网站都打不开；启用=可以上网，禁用=不能上网。</p>
+        <div class="output" id="output_network_limit">Click a button to see results...</div>
+      </div>
+    </div>
+
+    <!-- Clash Limit -->
+    <div class="card">
+      <div class="card-header">看油管 (Clash Mode)</div>
+      <div class="card-body">
+        <button class="btn btn-success action-btn" data-api="clash_limit" data-action="enable">启用-能看 (Rule)</button>
+        <button class="btn btn-danger action-btn" data-api="clash_limit" data-action="disable">禁用-不能看 (Direct)</button>
+        <p class="text-muted small mt-2">描述：禁用后不能看油管；启用=规则模式，禁用=直连/关闭。</p>
+        <div class="output" id="output_clash_limit">Click a button to see results...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="jquery-3.7.1.min.js"></script>
+  <script src="bootstrap.bundle.min.js"></script>
+  <script>
+    // ========= 浏览器会话指纹，确保“关闭浏览器就必须重新登录” =========
+    (function () {
+      const SESSION_FLAG = 'cp_session_boot';
+      const url = new URL(window.location.href);
+      const isInit = url.searchParams.get('init') === '1';
+
+      if (isInit) {
+        // 登录成功后首次进入：初始化会话指纹
+        sessionStorage.setItem(SESSION_FLAG, '1');
+        url.searchParams.delete('init');
+        window.history.replaceState({}, '', url.pathname + url.search);
+      } else {
+        // 非首次：必须已有指纹，否则判定浏览器会话已结束 → 强制登出 & 跳登录
+        if (!sessionStorage.getItem(SESSION_FLAG)) {
+          fetch('/logout', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          }).finally(() => window.location.replace('/login'));
+          return;
+        }
+      }
+
+      // 页面隐藏/关闭时尽量通知后端注销（尽力而为）
+      function tryBeaconLogout() {
+        try { navigator.sendBeacon && navigator.sendBeacon('/logout'); } catch (_) {}
+      }
+      window.addEventListener('pagehide', tryBeaconLogout);
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'hidden') tryBeaconLogout();
+      });
+
+      // 让退出按钮可用（供 onclick 调用）
+      window.logout = async function () {
+        if (!confirm('确定要退出登录吗？')) return;
+        try {
+          const res = await fetch('/logout', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          });
+          if (res.ok) {
+            const ct = res.headers.get('content-type') || '';
+            if (ct.includes('application/json')) {
+              const data = await res.json().catch(() => ({}));
+              sessionStorage.removeItem(SESSION_FLAG);
+              window.location.replace((data && data.redirect) ? data.redirect : '/login');
+              return;
+            }
+          }
+        } catch (_) {}
+        sessionStorage.removeItem(SESSION_FLAG);
+        window.location.replace('/login');
+      };
+    })();
+
+    // ========= 通用 AJAX 逻辑（会话过期自动跳登录） =========
+    function looksLikeLoginHtml(text) {
+      if (!text) return false;
+      const lower = text.toLowerCase();
+      return lower.includes('<form') && lower.includes('type="password"');
+    }
+
+    $(document).ready(function () {
+      $('.action-btn').on('click', function () {
+        var apiName = $(this).data('api');
+        var action = $(this).data('action');
+        var outputDiv = $('#output_' + apiName);
+
+        outputDiv.text('Loading...');
+
+        $.ajax({
+          url: '/api/' + apiName + '?action=' + action,
+          method: 'GET',
+          success: function (response, status, xhr) {
+            var ct = xhr.getResponseHeader('Content-Type') || '';
+            if (ct.includes('text/html') && typeof response === 'string' && looksLikeLoginHtml(response)) {
+              window.location.href = '/login';
+              return;
+            }
+            outputDiv.text(typeof response === 'string' ? response : JSON.stringify(response, null, 2));
+          },
+          error: function (xhr, status, error) {
+            var ct = xhr.getResponseHeader && xhr.getResponseHeader('Content-Type') || '';
+            if (xhr.status === 401 || xhr.status === 403 ||
+                (ct.includes('text/html') && typeof xhr.responseText === 'string' && looksLikeLoginHtml(xhr.responseText))) {
+              window.location.href = '/login';
+              return;
+            }
+            const body = (xhr.responseText || '').slice(0, 5000);
+            outputDiv.text('Error: ' + xhr.status + ' ' + error + '\nResponse:\n' + body);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

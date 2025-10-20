@@ -1,0 +1,26 @@
+# 脚本配置文件示例
+# 复制此文件为 scripts.conf 并填入实际值
+
+# NAS 限制配置,自己开发的修改smb共享密码即可不能观看nas里的电影
+NAS_API_URL="http://192.168.x.x:9991/toggle"
+
+# 网络限制配置 - MAC 地址列表（空格分隔）
+NETWORK_MAC_LIST="AA:BB:CC:DD:EE:FF 11:22:33:44:55:66"
+
+# Clash 配置
+CLASH_API_URL="http://192.168.x.x:9090/configs"
+CLASH_API_TOKEN="your_token_here"
+CLASH_API_HOST="192.168.x.x:9090"
+
+# AdGuard Home 配置（主实例）
+ADGUARD_API_URL="http://192.168.x.x:3000/control/filtering/set_rules"
+ADGUARD_USERNAME="admin"
+ADGUARD_PASSWORD="your_password_here"
+ADGUARD_HOST="192.168.x.x:3000"
+ADGUARD_SESSION_COOKIE="agh_session=your_session_cookie"
+
+# AdGuard Home 配置（103 实例 - 可选，如果有多个实例）
+ADGUARD_103_API_URL="http://192.168.x.x:3000/control/filtering/set_rules"
+ADGUARD_103_USERNAME="admin"
+ADGUARD_103_PASSWORD="your_password_here"
+ADGUARD_103_HOST="192.168.x.x:3000"
