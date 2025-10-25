@@ -7,6 +7,9 @@ NAS_API_URL="http://192.168.x.x:9991/toggle"
 # 网络限制配置 - MAC 地址列表（空格分隔）
 NETWORK_MAC_LIST="AA:BB:CC:DD:EE:FF 11:22:33:44:55:66"
 
+# 阻止小爱音箱上网 - MAC 地址列表（空格分隔）
+BAN_XIAOMI_MAC_LIST="AA:BB:CC:DD:EE:FF"
+
 # Clash 配置
 CLASH_API_URL="http://192.168.x.x:9090/configs"
 CLASH_API_TOKEN="your_token_here"
