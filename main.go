@@ -42,6 +42,7 @@ type AppConfig struct {
 	NetworkLimitScript  string                     `json:"networkLimitScript"`
 	ClashLimitScript    string                     `json:"clashLimitScript"`
 	BanXiaomiScript     string                     `json:"banXiaomiScript"`
+	BanMobileScript     string                     `json:"banMobileScript"`
 	WebsiteLimitScripts []WebsiteLimitScriptConfig `json:"websiteLimitScripts"`
 }
 
@@ -279,11 +280,12 @@ func loadConfig(path string) error {
 	logger.Printf("INFO: Config loaded successfully from: %s", path)
 	logger.Printf("DEBUG: Config - Username: %s, ServerPort: %s, LogPath: %s",
 		globalConfig.Username, serverPort, logFilePath)
-	logger.Printf("DEBUG: Scripts configured: nas=%v, network=%v, clash=%v, ban_xiaomi=%v, website=%d",
+	logger.Printf("DEBUG: Scripts configured: nas=%v, network=%v, clash=%v, ban_xiaomi=%v, ban_mobile=%v, website=%d",
 		globalConfig.NasLimitScript != "",
 		globalConfig.NetworkLimitScript != "",
 		globalConfig.ClashLimitScript != "",
 		globalConfig.BanXiaomiScript != "",
+		globalConfig.BanMobileScript != "",
 		len(globalConfig.WebsiteLimitScripts))
 	return nil
 }
@@ -419,6 +421,7 @@ func handleNasLimit(w http.ResponseWriter, r *http.Request)     { handleGenericS
 func handleNetworkLimit(w http.ResponseWriter, r *http.Request) { handleGenericScriptAction(w, r, globalConfig.NetworkLimitScript, "network_limit") }
 func handleClashLimit(w http.ResponseWriter, r *http.Request)   { handleGenericScriptAction(w, r, globalConfig.ClashLimitScript, "clash_limit") }
 func handleBanXiaomi(w http.ResponseWriter, r *http.Request)    { handleGenericScriptAction(w, r, globalConfig.BanXiaomiScript, "ban_xiaomi") }
+func handleBanMobile(w http.ResponseWriter, r *http.Request)    { handleGenericScriptAction(w, r, globalConfig.BanMobileScript, "ban_mobile") }
 
 // 初始化日志系统
 func initLogger() error {
@@ -555,6 +558,7 @@ func main() {
 	http.HandleFunc("/api/network_limit", authMiddleware(handleNetworkLimit))
 	http.HandleFunc("/api/clash_limit", authMiddleware(handleClashLimit))
 	http.HandleFunc("/api/ban_xiaomi", authMiddleware(handleBanXiaomi))
+	http.HandleFunc("/api/ban_mobile", authMiddleware(handleBanMobile))
 
 	// 创建 HTTP 服务器
 	server := &http.Server{
